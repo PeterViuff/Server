@@ -44,7 +44,7 @@ public class BookEndpoint {
         if (controller.getBooks()!=null) {
             return Response
                     .status(200)
-                    .entity(new Gson().toJson(Crypter.encryptDecryptXOR(new Gson().toJson(controller.getBooks()))))
+                    .entity((Crypter.encryptDecryptXOR(new Gson().toJson(controller.getBooks()))))
                     .build();
         }
         else {
@@ -68,7 +68,7 @@ public class BookEndpoint {
         if (controller.getBook(bookId)!=null) {
             return Response
                     .status(200)
-                    .entity(new Gson().toJson(Crypter.encryptDecryptXOR(new Gson().toJson(controller.getBook(bookId)))))
+                    .entity((Crypter.encryptDecryptXOR(new Gson().toJson(controller.getBook(bookId)))))
                     .build();
         }
         else {

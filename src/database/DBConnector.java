@@ -487,15 +487,9 @@ public class DBConnector {
             resultSet = authenticate.executeQuery();
 
             while (resultSet.next()) {
-                try {
-                    userFound = new User();
-                    userFound.setUserID(resultSet.getInt("UserID"));
-
-                } catch (SQLException e) {
-
-                }
-
-
+                userFound = new User();
+                userFound.setUserID(resultSet.getInt("UserID"));
+                userFound.setFirstName(resultSet.getString("First_Name"));
             }
         } catch (SQLException sqlException) {
             System.out.println(sqlException.getMessage());

@@ -6,7 +6,7 @@ package model;
 
 public class User {
     int userID;
-    String firstName, lastName, userName, email, password;
+    String firstName, lastName, userName, email, password, token;
     Boolean userType;
 
     public User(){
@@ -89,6 +89,14 @@ public class User {
 
     public void setUserType(Boolean admin) {
         userType = admin;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     /*

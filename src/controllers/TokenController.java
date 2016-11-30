@@ -15,23 +15,23 @@ public class TokenController {
 
     DBConnector db = new DBConnector();
 
-    public String authenticate(String username, String password) throws SQLException {
+    public User authenticate(String username, String password) throws SQLException {
         // Authenticate the user using the credentials provided
 
-        String token;
 
         User foundUser = db.authenticate(username, password);
+
         if (foundUser != null) {
 
-            token = Crypter.buildToken("abcdefghijklmnopqrstuvxyz1234567890@&%!?", 25);
+            String token = Crypter.buildToken("abcdefghijklmnopqrstuvxyz1234567890@&%!?", 25);
 
             db.addToken(token, foundUser.getUserID());
-
-        } else {
-            token = null;
+            foundUser.setToken(token);
         }
+
+
         //Retunerer en access token til klienten.
-        return token;
+        return foundUser;
 
 
     }
