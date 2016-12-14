@@ -6,6 +6,8 @@ import model.Book;
 import model.Curriculum;
 import model.User;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -128,18 +130,17 @@ public class DBConnector {
         return user;
     }
 
-    public boolean editUser(int id, String data) throws SQLException {
-        User u = new Gson().fromJson(data,User.class);
+    public boolean editUser(int id, User u) throws SQLException {
+
         PreparedStatement editUserStatement = conn
-                .prepareStatement("UPDATE Users SET First_Name = ?, Last_Name = ?, Username = ?, Email = ?, Usertype = ? WHERE userID =?");
+                .prepareStatement("UPDATE Users SET First_Name = ?, Last_Name = ?, Username = ?, Email = ? WHERE userID =?");
 
         try {
             editUserStatement.setString(1, u.getFirstName());
             editUserStatement.setString(2, u.getLastName());
             editUserStatement.setString(3, u.getUsername());
             editUserStatement.setString(4, u.getEmail());
-            editUserStatement.setBoolean(5, u.getUserType());
-            editUserStatement.setInt(6, id);
+            editUserStatement.setInt(5, id);
 
             editUserStatement.executeUpdate();
         } catch (SQLException e) {
@@ -151,7 +152,7 @@ public class DBConnector {
     public boolean addUser(User u) throws Exception {
 
         PreparedStatement addUserStatement =
-                conn.prepareStatement("INSERT INTO Users (First_Name, Last_Name, Username, Email, Password, Usertype) VALUES (?, ?, ?, ?, ?, ?)");
+                conn.prepareStatement("INSERT INTO Users (First_Name, Last_Name, Username, Email, Password) VALUES (?, ?, ?, ?, ?)");
 
         try {
             addUserStatement.setString(1, u.getFirstName());
@@ -159,7 +160,7 @@ public class DBConnector {
             addUserStatement.setString(3, u.getUsername());
             addUserStatement.setString(4, u.getEmail());
             addUserStatement.setString(5, u.getPassword());
-            addUserStatement.setBoolean(6, u.getUserType());
+
 
             addUserStatement.execute();
         } catch (SQLException e) {
@@ -180,6 +181,26 @@ public class DBConnector {
         }
         return true;
     }
+
+
+    public boolean backup(String string) {
+        try {
+            PreparedStatement addUserStatement = conn.prepareStatement("INSERT INTO Test (backup) VALUES (?)");
+            addUserStatement.setString(1, string);
+
+            addUserStatement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+
+
+
+        return true;
+    }
+
+
 
     /*Curriculum methods*/
     public ArrayList getCurriculums() throws IllegalArgumentException {
@@ -479,7 +500,7 @@ public class DBConnector {
         User userFound = null;
 
         try {
-            PreparedStatement authenticate = conn.prepareStatement("select * from Users where username = ? AND Password = ?");
+            PreparedStatement authenticate = conn.prepareStatement("select * from Users where username = ? AND Password = ? AND deleted = 0");
             authenticate.setString(1, username);
             authenticate.setString(2, password);
 
@@ -487,14 +508,16 @@ public class DBConnector {
             resultSet = authenticate.executeQuery();
 
             while (resultSet.next()) {
-                userFound = new User();
-                userFound.setUserID(resultSet.getInt("UserID"));
-                userFound.setFirstName(resultSet.getString("First_Name"));
+                try {
+                    userFound = new User();
+                    userFound.setUserID(resultSet.getInt("UserID"));
+                } catch (SQLException e) {
+                }
+
             }
         } catch (SQLException sqlException) {
             System.out.println(sqlException.getMessage());
         }
-
         return userFound;
 
     }
@@ -502,8 +525,6 @@ public class DBConnector {
     public User getUserFromToken(String token) throws SQLException {
         ResultSet resultSet = null;
         User userFromToken = null;
-
-
 
         try {
 
@@ -526,7 +547,6 @@ public class DBConnector {
         return userFromToken;
 
     }
-
     public void addToken(String token, int userId) {
 
         PreparedStatement addTokenStatement;
@@ -539,6 +559,7 @@ public class DBConnector {
             e.printStackTrace();
         }
     }
+
 
     public boolean deleteToken(String token) throws SQLException {
 
@@ -559,6 +580,29 @@ public class DBConnector {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean validateToken(String authToken) {
+        ResultSet resultSet = null;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement("select * from Tokens where token = ?");
+            ps.setString(1, authToken);
+
+            resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
+
+
+                return true;
+            }
+
+        }
+        catch (SQLException sqlException) {
+            System.out.println(sqlException.getMessage());
+        }
+
+        return false;
     }
 
 }

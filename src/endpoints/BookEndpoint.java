@@ -95,7 +95,7 @@ public class BookEndpoint {
 
     public Response edit(@HeaderParam("authorization") String authToken, @PathParam("bookId") int id, String data) throws Exception {
 
-        User user = tokenController.getUserFromTokens(authToken);
+       User user = new User();
 
         if (user != null){
 
@@ -154,7 +154,7 @@ public class BookEndpoint {
     @DELETE
     public Response delete (@HeaderParam("authorization") String authToken, @PathParam("id") int bookId) throws Exception {
 
-        User user = tokenController.getUserFromTokens(authToken);
+        User user = new User();
 
         if (user != null){
 

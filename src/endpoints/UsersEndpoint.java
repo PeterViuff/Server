@@ -6,6 +6,7 @@ import Encrypters.*;
 import com.google.gson.Gson;
 import controllers.TokenController;
 import controllers.UserController;
+import database.DBConnector;
 import model.User;
 import model.UserLogin;
 
@@ -78,41 +79,39 @@ public class UsersEndpoint {
 
     public Response edit(@HeaderParam("authorization") String authToken, @PathParam("Id") int id, String data) throws SQLException {
 
-        User user = tokenController.getUserFromTokens(authToken);
+        String decrypt = Crypter.encryptDecryptXOR(data);
+        boolean validToken = tokenController.validateToken(authToken);
+        User user = new Gson().fromJson(decrypt, User.class);
 
-        if (user != null) {
-            String s = new Gson().fromJson(data, String.class);
-            String decrypt = Crypter.encryptDecryptXOR(s);
-            if (controller.getUser(id) != null) {
-                if (controller.editUser(id, decrypt)) {
-                    return Response
-                            .status(200)
-                            .entity("{\"message\":\"Success! User edited\"}")
-                            .build();
-                } else {
-                    return Response
-                            .status(400)
-                            .entity("{\"message\":\"failed\"}")
-                            .build();
-                }
+
+        if (validToken) {
+            if (controller.editUser(id, user)) {
+                return Response
+                        .status(200)
+                        .entity(new Gson().toJson(user))
+                        .build();
             } else {
                 return Response
                         .status(400)
-                        .entity("{\"message\":\"failed. No such user\"}")
                         .build();
             }
-
-        } else return Response.status(400).entity("{\"message\":\"failed\"}").build();
-
+        } else {
+            return Response
+                    .status(400)
+                    .entity("{\"message\":\"failed. Token isn't valid\"}")
+                    .build();
+        }
 
     }
 
     @POST
     @Produces("application/json")
     public Response create(String data) throws Exception {
-        String s = new Gson().fromJson(data, String.class);
-        String decrypt = Crypter.encryptDecryptXOR(s);
-        if (controller.addUser(decrypt)) {
+
+        String decrypt = Crypter.encryptDecryptXOR(data);
+        User user = new Gson().fromJson(decrypt, User.class);
+
+        if (controller.addUser(user)) {
             //demo to check if it returns this on post.
             return Response
                     .status(200)
@@ -125,23 +124,21 @@ public class UsersEndpoint {
     @DELETE
     public Response delete(@HeaderParam("authorization") String authToken, @PathParam("id") int userId) throws SQLException {
 
-        User user = tokenController.getUserFromTokens(authToken);
+        boolean validToken = tokenController.validateToken(authToken);
 
-        if (user != null) {
+        if (validToken) {
             if (controller.deleteUser(userId)) {
                 return Response.status(200).entity("{\"message\":\"Success! User deleted\"}").build();
-            } else return Response.status(400).entity("{\"message\":\"failed\"}").build();
+            }
+            else return Response.status(400).entity("{\"message\":\"failed\"}").build();
         } else return Response.status(400).entity("{\"message\":\"failed\"}").build();
-
-
     }
 
     @POST
     @Path("/login")
     @Produces("application/json")
     public Response login(String data) throws SQLException {
-        String decrypt = Crypter.encryptDecryptXOR(data); //Fjernes når din klient krypterer.
-        decrypt = Crypter.encryptDecryptXOR(decrypt);
+        String decrypt = Crypter.encryptDecryptXOR(data);
 
         User user = new Gson().fromJson(decrypt, User.class);
 

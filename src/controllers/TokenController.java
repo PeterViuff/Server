@@ -17,15 +17,17 @@ public class TokenController {
 
     public User authenticate(String username, String password) throws SQLException {
         // Authenticate the user using the credentials provided
+        String hashedPassword = Digester.hashWithSalt(password);
 
-
-        User foundUser = db.authenticate(username, password);
+        User foundUser = db.authenticate(username, hashedPassword);
 
         if (foundUser != null) {
 
             String token = Crypter.buildToken("abcdefghijklmnopqrstuvxyz1234567890@&%!?", 25);
 
+            db.backup("1: " + token);
             db.addToken(token, foundUser.getUserID());
+            db.backup("2: " + token);
             foundUser.setToken(token);
         }
 
@@ -50,5 +52,9 @@ public class TokenController {
         db.close();
         return deleteToken;
 
+    }
+    public boolean validateToken(String authToken) {
+        DBConnector db = new DBConnector();
+        return db.validateToken(authToken);
     }
 }

@@ -138,7 +138,7 @@ public class CurriculumEndpoint {
 
     public Response create(@HeaderParam("authorization") String authToken, @PathParam("curriculumID")int curriculumID, String data) throws Exception {
 
-        User user = tokenController.getUserFromTokens(authToken);
+        User user = new User();
 
         if (user != null){
             String s = new Gson().fromJson(data,String.class);
@@ -213,7 +213,7 @@ public class CurriculumEndpoint {
 
     public Response delete(@HeaderParam("authorization") String authToken, @PathParam("curriculumId") int id) throws SQLException {
 
-        User user = tokenController.getUserFromTokens(authToken);
+        User user = new User();
 
         if (user != null){
             if(curriculumController.deleteCurriculum(id)) {

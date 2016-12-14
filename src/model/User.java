@@ -83,14 +83,6 @@ public class User {
         this.password = password;
     }
 
-    public Boolean getUserType() {
-        return userType;
-    }
-
-    public void setUserType(Boolean admin) {
-        userType = admin;
-    }
-
     public String getToken() {
         return token;
     }
@@ -99,7 +91,15 @@ public class User {
         this.token = token;
     }
 
-    /*
+    public Boolean getUserType() {
+        return userType;
+    }
+
+    public void setUserType(Boolean userType) {
+        this.userType = userType;
+    }
+
+/*
     @Override
     public String toString() {
         return "User{" +
