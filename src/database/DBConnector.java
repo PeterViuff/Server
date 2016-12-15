@@ -183,23 +183,6 @@ public class DBConnector {
     }
 
 
-    public boolean backup(String string) {
-        try {
-            PreparedStatement addUserStatement = conn.prepareStatement("INSERT INTO Test (backup) VALUES (?)");
-            addUserStatement.setString(1, string);
-
-            addUserStatement.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-        }
-
-
-
-        return true;
-    }
-
 
 
     /*Curriculum methods*/
